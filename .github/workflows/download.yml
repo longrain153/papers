@@ -14,7 +14,7 @@ jobs:
 
       - name: Download PDF
         run: |
-          curl -L -o "FEC_Survey.pdf" "https://www.researchgate.net/profile/Dimitrios-Soudris/publication/221457664_Configurable_baseband_digital_transceiver_for_Gbps_wireless_60_GHz_communications/links/5720adc108aead26e7200a0b/Configurable-baseband-digital-transceiver-for-Gbps-wireless-60-GHz-communications.pdf"
+          curl -L -o "FEC_Survey.pdf" "https://www.researchgate.net/publication/266388691_A_Survey_on_FEC_Codes_for_100_G_and_beyond_Optical_Networks/link/542fcbcb0cf29bbc12727d61/download?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InB1YmxpY2F0aW9uIiwicGFnZSI6InB1YmxpY2F0aW9uIn19"
 
       - name: Commit and Push
         run: |
