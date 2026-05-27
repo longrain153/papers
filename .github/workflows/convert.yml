@@ -1,19 +1,38 @@
-- name: Extract text and images
+name: Extract PDF
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install pymupdf
+
+      - name: Download PDF
+        run: |
+          curl -L -o "paper.pdf" "https://raw.githubusercontent.com/longrain153/papers/main/LLM.pdf"
+
+      - name: Extract text and images
         run: |
           python3 << 'EOF'
           import fitz, os
-          
-          doc = fitz.open("LLM.pdf")
+
+          doc = fitz.open("paper.pdf")
           os.makedirs("images", exist_ok=True)
-          
-          # 提取文字，遇到图片插入引用链接
+
           text = ""
           img_count = 0
           for page_num, page in enumerate(doc):
               text += f"\n\n## Page {page_num+1}\n"
               text += page.get_text()
-              
-              # 提取该页所有图片
+
               for img in page.get_images():
                   xref = img[0]
                   pix = fitz.Pixmap(doc, xref)
@@ -23,7 +42,7 @@
                   pix.save(img_name)
                   text += f"\n![图片]({img_name})\n"
                   img_count += 1
-          
+
           with open("paper.md", "w", encoding="utf-8") as f:
               f.write(text)
           print(f"完成：{len(doc)}页，{img_count}张图片")
