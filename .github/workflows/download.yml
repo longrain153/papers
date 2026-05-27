@@ -20,6 +20,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add FEC_Survey.pdf
+          git add .
           git commit -m "Add FEC Survey PDF"
           git push
