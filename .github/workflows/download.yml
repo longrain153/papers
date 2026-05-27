@@ -14,7 +14,7 @@ jobs:
 
       - name: Download PDF
         run: |
-          curl -L -o "FEC_Survey.pdf" "https://www.researchgate.net/publication/266388691_A_Survey_on_FEC_Codes_for_100_G_and_beyond_Optical_Networks/link/542fcbcb0cf29bbc12727d61/download?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InB1YmxpY2F0aW9uIiwicGFnZSI6InB1YmxpY2F0aW9uIn19"
+          curl -L -o "FEC_Survey.pdf" "https://www.researchgate.net/profile/Ioannis-Tomkos/publication/266388691_A_Survey_on_FEC_Codes_for_100_G_and_beyond_Optical_Networks/links/542fcbcb0cf29bbc12727d61/A-Survey-on-FEC-Codes-for-100-G-and-beyond-Optical-Networks.pdf?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InB1YmxpY2F0aW9uIiwicGFnZSI6InB1YmxpY2F0aW9uIn19"
 
       - name: Commit and Push
         run: |
