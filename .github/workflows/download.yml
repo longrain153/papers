@@ -1,0 +1,22 @@
+name: Download PDF
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download PDF
+        run: |
+          curl -L -o "FEC_Survey.pdf" "https://d1wqtxts1xzle7.cloudfront.net/93280350/comst.2014.236175420221029-1-2i9jyo-libre.pdf?1667076102=&response-content-disposition=inline%3B+filename%3DA_Survey_on_FEC_Codes_for_100_G_and_Beyo.pdf&Expires=1779899769&Signature=F~o~A67xVhQBSa1SD~5k0Cpo0AooWzm2OtYQctLY47ie0dNK~EOesnePhrZEazi4qsJkcYSqkJ7489o1aC~6VV4RQ1Fw6mo8-uypIM0WUV3d~QnNZFSLIGnFuEE5hr3gFQZzXCQvFGZ8AJHH4xYU1df-9aeLbkknG-~WVRJy91ALHNtgs3MP7fJv~h9e3n71yVKyyMUD3j7vBpvwZm5LuD85UAoaf5Lj58ofLYQhtkjg55UwRlSMolIZNjtQPd3mhXi24oWAO~CRY97pw12IxAsvfW2kJDY2GXeY9FBaVh6S3JnyXKGB0VaepQPsJasMjaMJP8BI6ZX6cxBr92Kvaw__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA"
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add FEC_Survey.pdf
+          git commit -m "Add FEC Survey PDF"
+          git push
