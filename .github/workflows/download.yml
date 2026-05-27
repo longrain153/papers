@@ -14,7 +14,7 @@ jobs:
 
       - name: Download PDF
         run: |
-          curl -L -o "FEC_Survey.pdf" "https://www.academia.edu/89482758/A_Survey_on_FEC_Codes_for_100_G_and_Beyond_Optical_Networks"
+          curl -L -o "FEC_Survey.pdf" "https://www.researchgate.net/profile/Dimitrios-Soudris/publication/221457664_Configurable_baseband_digital_transceiver_for_Gbps_wireless_60_GHz_communications/links/5720adc108aead26e7200a0b/Configurable-baseband-digital-transceiver-for-Gbps-wireless-60-GHz-communications.pdf"
 
       - name: Commit and Push
         run: |
