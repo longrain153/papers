@@ -61,23 +61,49 @@ ax.plot([2.1, 2.1], [3.95, 3.6], color="k", lw=1.2)
 box(0.85, 1.85, 4.25, 0.7,
     "v = d₁ − (d₂≫1) + (d₂≫4) + (d₃≫2)"
     "\nhardwired shifts", fs=8.8, **ORANGE)
-arrow((5.1, 2.2), (5.6, 2.2), "v 8bit", loff=(0.1, 0.14), fs=8.5)
+arrow((5.1, 2.2), (6.18, 2.2), "v  8bit", loff=(-0.1, 0.14), fs=8.5)
 
-# ---------- programmable shifts ----------
-box(5.6, 2.75, 1.9, 0.65, "prog shift A\n5:1 mux  ≫{4..7}/off",
-    fs=8.5, **GREEN)
-box(5.6, 1.25, 1.9, 0.65, "prog shift B\n5:1 mux  ≫{4..7}/off",
-    fs=8.5, **GREEN)
-ax.plot([5.5, 5.5], [1.55, 3.05], color="k", lw=1.2)
-arrow((5.5, 3.05), (5.6, 3.05))
-arrow((5.5, 1.55), (5.6, 1.55))
-arrow((7.5, 3.05), (8.4, 2.5), "6bit", loff=(-0.15, 0.14))
-arrow((7.5, 1.55), (8.4, 2.1), "6bit", loff=(-0.15, -0.3))
-box(8.4, 1.95, 1.3, 0.65, "± combine", fs=9, **GREEN)
-arrow((9.7, 2.3), (9.8, 2.3))
-ax.plot([9.8, 9.8], [2.3, 4.85], color="k", lw=1.2)
+# ---------- programmable shifts: explicit 5:1 muxes ----------
+from matplotlib.patches import Polygon
+
+
+def mux(x, y, h, name):
+    """Trapezoid 5:1 mux; returns (input ys, output point, sel point)."""
+    w = 0.5
+    ax.add_patch(Polygon([(x, y), (x, y + h), (x + w, y + h - 0.22),
+                          (x + w, y + 0.22)], closed=True,
+                         fc=GREEN["fc"], ec=GREEN["ec"], lw=1.3))
+    ax.text(x + w / 2, y + h / 2, "5:1", fontsize=8, ha="center",
+            va="center")
+    ax.text(x + w / 2, y + h + 0.1, name, fontsize=8.8, ha="center",
+            color="#2c7a2c")
+    ys = [y + h - 0.18 - i * (h - 0.36) / 4 for i in range(5)]
+    return ys, (x + w, y + h / 2), (x + w / 2, y)
+
+
+VBUS = 6.2
+ax.plot([VBUS, VBUS], [1.30, 3.72], color="k", lw=1.2)
+ax.plot(VBUS, 2.2, "ko", ms=3.5)
+
+for name, ybot in (("MUX A", 2.85), ("MUX B", 1.15)):
+    ys, out, sel = mux(6.9, ybot, 1.25, name)
+    ax.text(6.66, ys[0], "0", fontsize=7.8, ha="right", va="center",
+            color="#1a3d6e")
+    ax.plot([6.72, 6.9], [ys[0], ys[0]], color="k", lw=1.0)
+    for i, sh in enumerate(("≫4", "≫5", "≫6", "≫7"), start=1):
+        ax.plot([VBUS, 6.9], [ys[i], ys[i]], color="k", lw=1.0)
+        ax.text(6.55, ys[i] + 0.03, f"v{sh}", fontsize=7.4, ha="center",
+                color="#1a3d6e")
+    if name == "MUX A":
+        arrow(out, (8.2, 3.05), "tA  6bit", loff=(0.15, 0.18), fs=8)
+    else:
+        arrow(out, (8.2, 2.7), "tB  6bit", loff=(0.15, -0.34), fs=8)
+
+box(8.2, 2.55, 1.4, 0.7, "± combine\n(static add/sub)", fs=8.2, **GREEN)
+arrow((9.6, 2.9), (9.8, 2.9))
+ax.plot([9.8, 9.8], [2.9, 4.85], color="k", lw=1.2)
 arrow((9.8, 4.7), (9.8, 4.85))
-ax.text(10.1, 3.5, "c  7bit", fontsize=9.5, color="#1a3d6e")
+ax.text(9.95, 3.7, "c = μ̂·v\n7bit", fontsize=8.8, color="#1a3d6e")
 
 # ---------- config ----------
 ax.add_patch(FancyBboxPatch((1.0, 0.12), 7.95, 0.92,
@@ -93,11 +119,14 @@ box(6.5, 0.25, 2.3, 0.6, "config regs  8bit\n2×(sign+select)", fs=8.8,
     **PURPLE)
 ax.text(9.25, 0.5, "hardware datapath:\neverything above\n(per sample)",
         fontsize=8.2, color="#555", style="italic")
-for tgt in ((6.6, 1.25), (6.6, 2.75), (9.05, 1.95)):
-    ax.add_patch(FancyArrowPatch((7.65, 0.85), tgt, arrowstyle="-|>",
+for src, tgt in (((7.15, 0.85), (7.15, 1.15)),
+                 ((7.95, 0.85), (7.34, 2.85)),
+                 ((8.5, 0.85), (8.9, 2.55))):
+    ax.add_patch(FancyArrowPatch(src, tgt, arrowstyle="-|>",
                                  mutation_scale=10, lw=1.0, color="#7a3d8a",
                                  linestyle=(0, (4, 3))))
-ax.text(8.85, 1.5, "static selects", fontsize=8.5, color="#7a3d8a")
+ax.text(8.75, 1.55, "static selects\nsel 3bit ×2, sign ×2", fontsize=8,
+        color="#7a3d8a")
 
 ax.set_title("Tunable skew pre-compensator (|skew| ≤ 0.35 ps): "
              "0 multipliers · worst-case MSE −28.4 dB", fontsize=11)
