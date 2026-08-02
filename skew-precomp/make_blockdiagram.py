@@ -50,11 +50,10 @@ ax.text(2.28, 3.72, "5bit", fontsize=9, color="#1a3d6e")
 labels = ("d₁ = x[n−1]−x[n+1]", "d₂ = x[n−2]−x[n+2]", "d₃ = x[n−3]−x[n+3]")
 for i, sx in enumerate((0.85, 2.32, 3.79)):
     box(sx, 2.9, 1.3, 0.6, f"−\n{labels[i]}", fs=7.4, **ORANGE)
-    if i:
-        arrow((sx + 0.65, 3.6), (sx + 0.65, 3.5))
+    arrow((sx + 0.65, 3.6), (sx + 0.65, 3.5))
     arrow((sx + 0.65, 2.9), (sx + 0.65, 2.55))
 ax.text(4.62, 2.68, "6bit ×3", fontsize=8.5, color="#1a3d6e")
-ax.plot([2.1, 4.44], [3.6, 3.6], color="k", lw=1.2)
+ax.plot([1.5, 4.44], [3.6, 3.6], color="k", lw=1.2)
 ax.plot([2.1, 2.1], [3.95, 3.6], color="k", lw=1.2)
 
 # ---------- hardwired shift-add ----------
