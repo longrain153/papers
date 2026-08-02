@@ -48,20 +48,20 @@ ax.text(2.28, 3.72, "5bit", fontsize=9, color="#1a3d6e")
 
 # ---------- subtractors ----------
 labels = ("d₁ = x[n−1]−x[n+1]", "d₂ = x[n−2]−x[n+2]", "d₃ = x[n−3]−x[n+3]")
-for i, sx in enumerate((0.85, 2.3, 3.75)):
-    box(sx, 2.9, 1.35, 0.6, f"−\n{labels[i]}", fs=7.6, **ORANGE)
+for i, sx in enumerate((0.85, 2.32, 3.79)):
+    box(sx, 2.9, 1.3, 0.6, f"−\n{labels[i]}", fs=7.4, **ORANGE)
     if i:
-        arrow((sx + 0.67, 3.6), (sx + 0.67, 3.5))
-    arrow((sx + 0.67, 2.9), (sx + 0.67, 2.55))
-ax.text(4.55, 2.68, "6bit ×3", fontsize=8.5, color="#1a3d6e")
-ax.plot([2.1, 4.42], [3.6, 3.6], color="k", lw=1.2)
+        arrow((sx + 0.65, 3.6), (sx + 0.65, 3.5))
+    arrow((sx + 0.65, 2.9), (sx + 0.65, 2.55))
+ax.text(4.62, 2.68, "6bit ×3", fontsize=8.5, color="#1a3d6e")
+ax.plot([2.1, 4.44], [3.6, 3.6], color="k", lw=1.2)
 ax.plot([2.1, 2.1], [3.95, 3.6], color="k", lw=1.2)
 
 # ---------- hardwired shift-add ----------
 box(0.85, 1.85, 4.25, 0.7,
     "v = d₁ − (d₂≫1) + (d₂≫4) + (d₃≫2)"
     "\nhardwired shifts", fs=8.8, **ORANGE)
-arrow((5.1, 2.2), (5.6, 2.2), "v 8bit", loff=(0, -0.32), fs=8.5)
+arrow((5.1, 2.2), (5.6, 2.2), "v 8bit", loff=(0.1, 0.14), fs=8.5)
 
 # ---------- programmable shifts ----------
 box(5.6, 2.75, 1.9, 0.65, "prog shift A\n5:1 mux  ≫{4..7}/off",
@@ -80,7 +80,7 @@ arrow((9.8, 4.7), (9.8, 4.85))
 ax.text(10.1, 3.5, "c  7bit", fontsize=9.5, color="#1a3d6e")
 
 # ---------- config ----------
-ax.add_patch(FancyBboxPatch((1.0, 0.12), 4.35, 1.0,
+ax.add_patch(FancyBboxPatch((1.0, 0.12), 7.95, 0.92,
                             boxstyle="round,pad=0.06", fc="none",
                             ec="#7a3d8a", lw=1.2, linestyle=(0, (5, 3))))
 ax.text(1.15, 0.94, "software (per calibration only)", fontsize=8.8,
@@ -91,13 +91,13 @@ box(3.6, 0.25, 2.1, 0.6, "SPT lookup\nμ̂=(±2ᵖ±2^q)/256", fs=8.4, **PURPLE)
 arrow((5.9, 0.55), (6.5, 0.55))
 box(6.5, 0.25, 2.3, 0.6, "config regs  8bit\n2×(sign+select)", fs=8.8,
     **PURPLE)
-ax.text(8.9, 0.1, "hardware datapath: everything above (per sample)",
+ax.text(9.25, 0.5, "hardware datapath:\neverything above\n(per sample)",
         fontsize=8.2, color="#555", style="italic")
 for tgt in ((6.6, 1.25), (6.6, 2.75), (9.05, 1.95)):
     ax.add_patch(FancyArrowPatch((7.65, 0.85), tgt, arrowstyle="-|>",
                                  mutation_scale=10, lw=1.0, color="#7a3d8a",
                                  linestyle=(0, (4, 3))))
-ax.text(8.9, 1.05, "static selects", fontsize=8.5, color="#7a3d8a")
+ax.text(8.85, 1.5, "static selects", fontsize=8.5, color="#7a3d8a")
 
 ax.set_title("Tunable skew pre-compensator (|skew| ≤ 0.35 ps): "
              "0 multipliers · worst-case MSE −28.4 dB", fontsize=11)
