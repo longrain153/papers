@@ -47,21 +47,21 @@ box(1.75, 3.95, 0.7, 0.5, "cut", **ORANGE)
 ax.text(2.28, 3.72, "5bit", fontsize=9, color="#1a3d6e")
 
 # ---------- subtractors ----------
-labels = ("d₁", "d₂", "d₃")
-for i, sx in enumerate((1.2, 2.5, 3.8)):
-    box(sx, 2.9, 0.9, 0.6, f"−\n{labels[i]}", fs=9, **ORANGE)
+labels = ("d₁ = x[n−1]−x[n+1]", "d₂ = x[n−2]−x[n+2]", "d₃ = x[n−3]−x[n+3]")
+for i, sx in enumerate((0.85, 2.3, 3.75)):
+    box(sx, 2.9, 1.35, 0.6, f"−\n{labels[i]}", fs=7.6, **ORANGE)
     if i:
-        arrow((sx + 0.45, 3.6), (sx + 0.45, 3.5))
-    arrow((sx + 0.45, 2.9), (sx + 0.45, 2.55))
-ax.text(4.4, 2.62, "6bit ×3", fontsize=9, color="#1a3d6e")
-ax.plot([2.1, 4.25], [3.6, 3.6], color="k", lw=1.2)
+        arrow((sx + 0.67, 3.6), (sx + 0.67, 3.5))
+    arrow((sx + 0.67, 2.9), (sx + 0.67, 2.55))
+ax.text(4.55, 2.68, "6bit ×3", fontsize=8.5, color="#1a3d6e")
+ax.plot([2.1, 4.42], [3.6, 3.6], color="k", lw=1.2)
 ax.plot([2.1, 2.1], [3.95, 3.6], color="k", lw=1.2)
 
 # ---------- hardwired shift-add ----------
-box(1.2, 1.85, 3.5, 0.7,
+box(0.85, 1.85, 4.25, 0.7,
     "v = d₁ − (d₂≫1) + (d₂≫4) + (d₃≫2)"
     "\nhardwired shifts", fs=8.8, **ORANGE)
-arrow((4.7, 2.2), (5.6, 2.2), "v  8bit", loff=(0, 0.16))
+arrow((5.1, 2.2), (5.6, 2.2), "v 8bit", loff=(0, -0.32), fs=8.5)
 
 # ---------- programmable shifts ----------
 box(5.6, 2.75, 1.9, 0.65, "prog shift A\n5:1 mux  ≫{4..7}/off",
@@ -80,12 +80,19 @@ arrow((9.8, 4.7), (9.8, 4.85))
 ax.text(10.1, 3.5, "c  7bit", fontsize=9.5, color="#1a3d6e")
 
 # ---------- config ----------
+ax.add_patch(FancyBboxPatch((1.0, 0.12), 4.35, 1.0,
+                            boxstyle="round,pad=0.06", fc="none",
+                            ec="#7a3d8a", lw=1.2, linestyle=(0, (5, 3))))
+ax.text(1.15, 0.94, "software (per calibration only)", fontsize=8.8,
+        color="#7a3d8a", style="italic")
 box(1.2, 0.25, 1.6, 0.6, "μ register\n8bit", fs=8.8, **PURPLE)
 arrow((2.8, 0.55), (3.6, 0.55))
-box(3.6, 0.25, 2.1, 0.6, "firmware\nSPT lookup", fs=8.8, **PURPLE)
-arrow((5.7, 0.55), (6.5, 0.55))
+box(3.6, 0.25, 2.1, 0.6, "SPT lookup\nμ̂=(±2ᵖ±2^q)/256", fs=8.4, **PURPLE)
+arrow((5.9, 0.55), (6.5, 0.55))
 box(6.5, 0.25, 2.3, 0.6, "config regs  8bit\n2×(sign+select)", fs=8.8,
     **PURPLE)
+ax.text(8.9, 0.1, "hardware datapath: everything above (per sample)",
+        fontsize=8.2, color="#555", style="italic")
 for tgt in ((6.6, 1.25), (6.6, 2.75), (9.05, 1.95)):
     ax.add_patch(FancyArrowPatch((7.65, 0.85), tgt, arrowstyle="-|>",
                                  mutation_scale=10, lw=1.0, color="#7a3d8a",
