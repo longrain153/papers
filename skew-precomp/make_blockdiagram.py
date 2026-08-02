@@ -1,114 +1,99 @@
 #!/usr/bin/env python3
-"""Block diagram of the final power-optimized skew compensator with
-node bit-widths (verified bit-exact by sim_fixedpoint.py)."""
+"""Simplified block diagram: bit widths only (verified by sim_fixedpoint.py)."""
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-fig, ax = plt.subplots(figsize=(13.5, 7.2))
-ax.set_xlim(0, 13.5)
-ax.set_ylim(0, 7.2)
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 6)
 ax.axis("off")
 
-
-def box(x, y, w, h, text, fc="#eef3fb", ec="#2b5aa0", fs=8.6, style="round"):
-    ax.add_patch(FancyBboxPatch((x, y), w, h,
-                                boxstyle=f"{style},pad=0.06",
-                                fc=fc, ec=ec, lw=1.3))
-    ax.text(x + w / 2, y + h / 2, text, ha="center", va="center",
-            fontsize=fs)
+BLUE = dict(fc="#eef3fb", ec="#2b5aa0")
+ORANGE = dict(fc="#fdf3e3", ec="#b07818")
+GREEN = dict(fc="#e8f6e8", ec="#2c7a2c")
+PURPLE = dict(fc="#f5e9f7", ec="#7a3d8a")
 
 
-def arrow(x1, y1, x2, y2, label="", dy=0.14, fs=8, color="k", ls="-"):
-    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2),
-                                 arrowstyle="-|>", mutation_scale=11,
+def box(x, y, w, h, text, fs=9.5, **kw):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.06",
+                                lw=1.3, **kw))
+    ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs)
+
+
+def arrow(p1, p2, label="", loff=(0, 0.13), fs=9, color="k", ls="-"):
+    ax.add_patch(FancyArrowPatch(p1, p2, arrowstyle="-|>", mutation_scale=11,
                                  lw=1.2, color=color, linestyle=ls))
     if label:
-        ax.text((x1 + x2) / 2, max(y1, y2) + dy, label, ha="center",
-                fontsize=fs, color="#1a3d6e")
+        ax.text((p1[0] + p2[0]) / 2 + loff[0], (p1[1] + p2[1]) / 2 + loff[1],
+                label, ha="center", fontsize=fs, color="#1a3d6e")
 
 
-# ---------------- main path (top) ----------------
-arrow(0.1, 6.3, 1.0, 6.3, "x[n]  s8\nLSB=FS/128", dy=0.18)
-box(1.0, 5.9, 2.6, 0.8, "delay line\n7 taps × s8  (z⁻¹ ×6)")
-arrow(3.6, 6.3, 10.6, 6.3, "center tap x[n−3]   s8", dy=0.12)
-box(10.6, 5.9, 1.4, 0.8, "+\noutput adder")
-arrow(12.0, 6.3, 12.7, 6.3)
-box(12.7, 5.9, 0.7, 0.8, "rnd\nsat")
-ax.text(13.05, 5.6, "y[n]  s8", ha="center", fontsize=8.6, color="#1a3d6e")
-ax.add_patch(FancyArrowPatch((13.05, 5.9), (13.05, 5.35),
-                             arrowstyle="-|>", mutation_scale=11, lw=1.2))
+# ---------- main path ----------
+arrow((0.1, 5.2), (1.0, 5.2), "x[n]\n8bit", loff=(0, 0.18))
+box(1.0, 4.85, 2.2, 0.7, "delay line\n7 taps", **BLUE)
+arrow((3.2, 5.2), (9.3, 5.2), "center tap    8bit")
+box(9.3, 4.85, 1.0, 0.7, "+", fs=13, **BLUE)
+arrow((10.3, 5.2), (11.0, 5.2), "9bit")
+box(11.0, 4.85, 0.85, 0.7, "rnd/\nsat", **BLUE)
+arrow((11.9, 5.2), (11.98, 5.2))
+ax.text(11.75, 4.55, "y[n]  8bit", fontsize=9.5, color="#1a3d6e")
 
-# ---------------- correction path ----------------
-box(1.0, 4.7, 2.6, 0.7,
-    "drop 3 LSBs (6 taps)\n→ s5, LSB = FS/16", fc="#fdf3e3", ec="#b07818")
-arrow(2.3, 5.9, 2.3, 5.4, "outer taps ±1, ±2, ±3   6 × s8")
+# ---------- cut ----------
+arrow((2.1, 4.85), (2.1, 4.45), "outer taps ×6   8bit", loff=(1.15, -0.25))
+box(1.75, 3.95, 0.7, 0.5, "cut", **ORANGE)
+ax.text(2.28, 3.72, "5bit", fontsize=9, color="#1a3d6e")
 
-sub_x = [0.7, 2.05, 3.4]
-for i, (sx, lbl) in enumerate(zip(sub_x, ("d₁ = x[−1]−x[+1]",
-                                          "d₂ = x[−2]−x[+2]",
-                                          "d₃ = x[−3]−x[+3]"))):
-    box(sx, 3.6, 1.25, 0.7, f"-\n{lbl}", fc="#fdf3e3", ec="#b07818", fs=7.6)
-    arrow(sx + 0.62, 4.7, sx + 0.62, 4.3, "s5×2")
-    arrow(sx + 0.62, 3.6, sx + 0.62, 3.15,
-          "s6\nLSB=FS/16", dy=-0.62, fs=7.3)
+# ---------- subtractors ----------
+labels = ("d₁", "d₂", "d₃")
+for i, sx in enumerate((1.2, 2.5, 3.8)):
+    box(sx, 2.9, 0.9, 0.6, f"−\n{labels[i]}", fs=9, **ORANGE)
+    if i:
+        arrow((sx + 0.45, 3.6), (sx + 0.45, 3.5))
+    arrow((sx + 0.45, 2.9), (sx + 0.45, 2.55))
+ax.text(4.4, 2.62, "6bit ×3", fontsize=9, color="#1a3d6e")
+ax.plot([2.1, 4.25], [3.6, 3.6], color="k", lw=1.2)
+ax.plot([2.1, 2.1], [3.95, 3.6], color="k", lw=1.2)
 
-box(0.7, 2.35, 3.95, 0.8,
-    "hardwired shift-add  (no mux)\n"
-    "v = d₁ − (d₂≫1) + (d₂≫4) + (d₃≫2)",
-    fc="#fdf3e3", ec="#b07818")
-arrow(4.65, 2.75, 5.7, 2.75, "v  s8\nLSB=FS/32", dy=0.18)
+# ---------- hardwired shift-add ----------
+box(1.2, 1.85, 3.5, 0.7,
+    "v = d₁ − (d₂≫1) + (d₂≫4) + (d₃≫2)"
+    "\nhardwired shifts", fs=8.8, **ORANGE)
+arrow((4.7, 2.2), (5.6, 2.2), "v  8bit", loff=(0, 0.16))
 
-# two programmable shifters
-box(5.7, 3.0, 2.0, 0.75,
-    "prog shift A\n5:1 mux {off,≫4,≫5,≫6,≫7}", fc="#e8f6e8", ec="#2c7a2c",
-    fs=7.8)
-box(5.7, 1.7, 2.0, 0.75,
-    "prog shift B\n5:1 mux {off,≫4,≫5,≫6,≫7}", fc="#e8f6e8", ec="#2c7a2c",
-    fs=7.8)
-arrow(5.6, 2.75, 5.7, 3.35)
-arrow(5.6, 2.75, 5.7, 2.1)
-arrow(7.7, 3.37, 8.7, 3.0, "tA  s6, LSB=FS/128", fs=7.3)
-arrow(7.7, 2.1, 8.7, 2.6, "tB  s6, LSB=FS/128", dy=-0.35, fs=7.3)
+# ---------- programmable shifts ----------
+box(5.6, 2.75, 1.9, 0.65, "prog shift A\n5:1 mux  ≫{4..7}/off",
+    fs=8.5, **GREEN)
+box(5.6, 1.25, 1.9, 0.65, "prog shift B\n5:1 mux  ≫{4..7}/off",
+    fs=8.5, **GREEN)
+ax.plot([5.5, 5.5], [1.55, 3.05], color="k", lw=1.2)
+arrow((5.5, 3.05), (5.6, 3.05))
+arrow((5.5, 1.55), (5.6, 1.55))
+arrow((7.5, 3.05), (8.4, 2.5), "6bit", loff=(-0.15, 0.14))
+arrow((7.5, 1.55), (8.4, 2.1), "6bit", loff=(-0.15, -0.3))
+box(8.4, 1.95, 1.3, 0.65, "± combine", fs=9, **GREEN)
+arrow((9.7, 2.3), (9.8, 2.3))
+ax.plot([9.8, 9.8], [2.3, 4.85], color="k", lw=1.2)
+arrow((9.8, 4.7), (9.8, 4.85))
+ax.text(10.1, 3.5, "c  7bit", fontsize=9.5, color="#1a3d6e")
 
-box(8.7, 2.5, 1.5, 0.75, "± combine\n(static add/sub)",
-    fc="#e8f6e8", ec="#2c7a2c", fs=7.8)
-arrow(10.2, 2.9, 11.3, 2.9, "c = μ̂·v   s7\nLSB=FS/128", dy=0.16, fs=7.6)
-ax.add_patch(FancyArrowPatch((11.3, 2.9), (11.3, 5.9),
-                             arrowstyle="-|>", mutation_scale=11, lw=1.2))
-ax.text(11.55, 4.4, "s7", fontsize=7.6, color="#1a3d6e")
-ax.text(11.15, 6.05, "s9 → rnd/sat", fontsize=7.2, ha="right",
-        color="#1a3d6e")
-
-# ---------------- config / firmware (bottom) ----------------
-box(0.7, 0.35, 1.7, 0.7, "μ register\ns8 (step 1/256)\n|code| ≤ 24",
-    fc="#f5e9f7", ec="#7a3d8a", fs=7.4)
-arrow(2.4, 0.7, 3.3, 0.7)
-box(3.3, 0.35, 2.6, 0.7,
-    "firmware SPT LUT (49 entries)\nμ̂ = (±2ᵖ ± 2^q)/256, p,q∈{0..4}",
-    fc="#f5e9f7", ec="#7a3d8a", fs=7.4)
-arrow(5.9, 0.7, 6.9, 0.7)
-box(6.9, 0.35, 2.9, 0.7,
-    "config regs (double-buffered)\n2 × (sign 1b + select 3b) = 8 bit",
-    fc="#f5e9f7", ec="#7a3d8a", fs=7.4)
-for tx, ty in ((6.7, 1.7), (6.7, 3.0), (9.45, 2.5)):
-    ax.add_patch(FancyArrowPatch((8.35, 1.05), (tx, ty),
-                                 arrowstyle="-|>", mutation_scale=10,
-                                 lw=1.0, color="#7a3d8a",
+# ---------- config ----------
+box(1.2, 0.25, 1.6, 0.6, "μ register\n8bit", fs=8.8, **PURPLE)
+arrow((2.8, 0.55), (3.6, 0.55))
+box(3.6, 0.25, 2.1, 0.6, "firmware\nSPT lookup", fs=8.8, **PURPLE)
+arrow((5.7, 0.55), (6.5, 0.55))
+box(6.5, 0.25, 2.3, 0.6, "config regs  8bit\n2×(sign+select)", fs=8.8,
+    **PURPLE)
+for tgt in ((6.6, 1.25), (6.6, 2.75), (9.05, 1.95)):
+    ax.add_patch(FancyArrowPatch((7.65, 0.85), tgt, arrowstyle="-|>",
+                                 mutation_scale=10, lw=1.0, color="#7a3d8a",
                                  linestyle=(0, (4, 3))))
-ax.text(8.6, 1.35, "static select lines (no toggling)", fontsize=7.4,
-        color="#7a3d8a")
+ax.text(8.9, 1.05, "static selects", fontsize=8.5, color="#7a3d8a")
 
-ax.text(0.15, 0.05,
-        "s N = N-bit signed two's complement · FS = full-scale amplitude of"
-        " x · main path assumed s8 · bit-exact worst-case MSE = −28.35 dB"
-        " (sim_fixedpoint.py)",
-        fontsize=7.6, color="#555")
-ax.set_title("Online-tunable skew pre-compensator, |skew| ≤ 0.35 ps "
-             "@ 265.5 GSa/s — multiplierless, power-optimized "
-             "(one parallel lane shown)", fontsize=10.5)
+ax.set_title("Tunable skew pre-compensator (|skew| ≤ 0.35 ps): "
+             "0 multipliers · worst-case MSE −28.4 dB", fontsize=11)
 fig.tight_layout()
 fig.savefig("blockdiagram.png", dpi=170)
 print("saved blockdiagram.png")
