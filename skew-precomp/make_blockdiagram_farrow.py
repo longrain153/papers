@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Traditional 2nd-order Farrow (2 programmable multipliers, Horner form)
-for |skew| <= 1 ps — comparison diagram to the multiplierless version."""
+for |skew| <= 1 ps, with the v1/v2 CSD coefficients expanded.
+Coefficient values verified in-loop: worst-case MSE -27.2 dB (d 6bit)."""
 
 import matplotlib
 matplotlib.use("Agg")
@@ -50,59 +51,66 @@ ax.text(11.6, 4.55, "y[n]  8bit", fontsize=9, color="#1a3d6e")
 # ---------------- cut + feed bus ----------------
 arrow((2.1, 4.85), (2.1, 4.45), "outer taps ×12   8bit", loff=(1.25, -0.25))
 box(1.75, 3.95, 0.7, 0.5, "cut", **ORANGE)
-ax.plot([2.1, 2.1], [3.95, 3.62], color="k", lw=1.2)
-ax.plot([0.5, 2.1], [3.62, 3.62], color="k", lw=1.2)
-ax.plot([0.5, 0.5], [3.62, 1.8], color="k", lw=1.2)
-ax.text(1.1, 3.7, "6bit", fontsize=8.6, color="#1a3d6e")
-arrow((0.5, 3.0), (0.9, 3.0))
-arrow((0.5, 1.8), (0.9, 1.8))
+ax.plot([2.1, 2.1], [3.95, 3.75], color="k", lw=1.2)
+ax.plot([0.5, 2.1], [3.75, 3.75], color="k", lw=1.2)
+ax.plot([0.5, 0.5], [3.75, 1.7], color="k", lw=1.2)
+ax.text(1.1, 3.83, "6bit", fontsize=8.6, color="#1a3d6e")
+arrow((0.5, 3.05), (0.9, 3.05))
+arrow((0.5, 1.7), (0.9, 1.7))
 
-# ---------------- fixed subfilters ----------------
-box(0.9, 2.65, 3.3, 0.7,
-    "v₁ = Σₖ aₖ·(x[n−k] − x[n+k])\nk = 1..6,  fixed CSD  (antisym)",
-    fs=8.4, **ORANGE)
-box(0.9, 1.45, 3.3, 0.7,
-    "v₂ = b₀·x[n] + Σₖ bₖ·(x[n−k] + x[n+k])\nk = 1..2,  fixed CSD  (sym)",
-    fs=8.4, **ORANGE)
+# ---------------- fixed subfilters with expanded CSD coefficients ------
+box(0.9, 2.45, 3.6, 1.15,
+    "v₁ = Σₖ aₖ·(x[n−k] − x[n+k]),  k = 1..6\n"
+    "a₁ = 1−2⁻⁴+2⁻⁶        a₂ = −2⁻¹+2⁻⁴\n"
+    "a₃ = 2⁻²+2⁻⁶            a₄ = −2⁻²+2⁻⁴+2⁻⁷\n"
+    "a₅ = 2⁻³−2⁻⁸            a₆ = −2⁻⁴−2⁻⁶−2⁻⁹",
+    fs=7.6, **ORANGE)
+ax.text(4.6, 3.72, "antisym, fixed CSD", fontsize=7.6, color="#b07818")
+box(0.9, 1.1, 3.6, 0.95,
+    "v₂ = b₀·x[n] + Σₖ bₖ·(x[n−k] + x[n+k]),  k = 1..2\n"
+    "b₀ = −1−2⁻¹−2⁻⁵     b₁ = 1−2⁻³+2⁻⁵\n"
+    "b₂ = −2⁻²+2⁻⁴+2⁻⁶",
+    fs=7.6, **ORANGE)
+ax.text(4.6, 2.17, "sym, fixed CSD", fontsize=7.6, color="#b07818")
 
 # ---------------- Horner chain: y = x + mu*(v1 + mu*v2) ----------------
-circ(5.3, 1.8, "×", GREEN)
-ax.text(5.3, 2.22, "mult 1", fontsize=8.2, color="#2c7a2c", ha="center")
-arrow((4.2, 1.8), (5.04, 1.8), "v₂  9bit", loff=(-0.05, 0.14))
-circ(6.6, 1.8, "+", GREEN)
-arrow((5.56, 1.8), (6.34, 1.8), "9bit", loff=(0, 0.12))
-# v1 routes over to the adder
-ax.plot([4.2, 6.6], [3.0, 3.0], color="k", lw=1.2)
-ax.text(5.4, 3.13, "v₁  9bit", fontsize=8.6, ha="center", color="#1a3d6e")
-arrow((6.6, 3.0), (6.6, 2.06))
-circ(7.9, 1.8, "×", GREEN)
-ax.text(7.9, 2.22, "mult 2", fontsize=8.2, color="#2c7a2c", ha="center")
-arrow((6.86, 1.8), (7.64, 1.8), "10bit", loff=(0, 0.12))
-arrow((8.16, 1.8), (9.8, 1.8), "c = μ·v₁ + μ²·v₂\n8bit (rnd)",
-      loff=(0, 0.2))
-ax.plot([9.8, 9.8], [1.8, 4.85], color="k", lw=1.2)
+circ(5.5, 1.55, "×", GREEN)
+ax.text(5.5, 1.97, "mult 1", fontsize=8.2, color="#2c7a2c", ha="center")
+arrow((4.5, 1.55), (5.24, 1.55), "v₂  9bit", loff=(-0.05, 0.14), fs=8)
+circ(6.7, 1.55, "+", GREEN)
+arrow((5.76, 1.55), (6.44, 1.55), "9bit", loff=(0, 0.12), fs=8)
+ax.plot([4.5, 6.7], [3.02, 3.02], color="k", lw=1.2)
+ax.text(5.6, 3.15, "v₁  9bit", fontsize=8.6, ha="center", color="#1a3d6e")
+arrow((6.7, 3.02), (6.7, 1.81))
+circ(7.9, 1.55, "×", GREEN)
+ax.text(7.9, 1.97, "mult 2", fontsize=8.2, color="#2c7a2c", ha="center")
+arrow((6.96, 1.55), (7.64, 1.55), "10bit", loff=(0, 0.12), fs=8)
+arrow((8.16, 1.55), (9.8, 1.55), "c = μ·v₁ + μ²·v₂\n8bit (rnd)",
+      loff=(0, 0.22), fs=8.4)
+ax.plot([9.8, 9.8], [1.55, 4.85], color="k", lw=1.2)
 arrow((9.8, 4.7), (9.8, 4.85))
 
 # ---------------- mu register (software-written) ----------------
-ax.add_patch(FancyBboxPatch((5.0, 0.3), 3.4, 0.75,
+ax.add_patch(FancyBboxPatch((5.0, 0.28), 3.4, 0.66,
                             boxstyle="round,pad=0.06", fc="none",
                             ec="#7a3d8a", lw=1.2, linestyle=(0, (5, 3))))
-ax.text(5.12, 0.62, "software:\nwrite μ per\ncalibration", fontsize=8,
+ax.text(5.12, 0.6, "software:\nwrite μ per\ncalibration", fontsize=7.8,
         color="#7a3d8a", style="italic", va="center")
-box(6.5, 0.4, 1.6, 0.5, "μ register  8bit", fs=8.6, **PURPLE)
-ax.add_patch(FancyArrowPatch((6.5, 0.75), (5.3, 1.54), arrowstyle="-|>",
+box(6.5, 0.36, 1.6, 0.5, "μ register  8bit", fs=8.6, **PURPLE)
+ax.add_patch(FancyArrowPatch((6.5, 0.65), (5.5, 1.29), arrowstyle="-|>",
                              mutation_scale=10, lw=1.0, color="#7a3d8a",
                              linestyle=(0, (4, 3))))
-ax.add_patch(FancyArrowPatch((8.1, 0.75), (7.9, 1.54), arrowstyle="-|>",
+ax.add_patch(FancyArrowPatch((8.1, 0.65), (7.9, 1.29), arrowstyle="-|>",
                              mutation_scale=10, lw=1.0, color="#7a3d8a",
                              linestyle=(0, (4, 3))))
-ax.text(8.35, 1.15, "same μ to both\n(quasi-static)", fontsize=7.8,
+ax.text(8.5, 0.95, "same μ to both\n(quasi-static)", fontsize=7.8,
         color="#7a3d8a")
 
 ax.text(0.15, 0.05,
         "Horner form:  y = x + μ·(v₁ + μ·v₂)  ≡  x + μ·v₁ + μ²·v₂"
-        "   ·   the 2 multipliers are the only programmable elements",
-        fontsize=8, color="#555")
+        "   ·   the 2 multipliers are the only programmable elements"
+        "   ·   CSD coefficients verified: −27.2 dB worst case",
+        fontsize=7.8, color="#555")
 ax.set_title("Traditional 2nd-order Farrow, |skew| ≤ 1 ps: "
              "2 programmable multipliers · worst-case MSE −27.2 dB "
              "(d 6bit)", fontsize=10.5)
